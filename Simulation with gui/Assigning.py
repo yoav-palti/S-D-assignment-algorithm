@@ -53,7 +53,7 @@ def assign_sd(tree: TreeOfData, number_of_iterations:int ,min_gap_ratio:float):
     feasible_cost = np.zeros(num_constraints)
     # in the tree documentation, we do the first and and second state automatically.
     for iter_num in tqdm.trange(number_of_iterations):
-        real_children_paths = [[i + 1] for i in range(len(tree.sensor_times[0]))]
+        real_children_paths = [[i + 1] for i in range(len(tree.sensors_times[0]))]
         # the matrix of the first and second sensor in the tree is received
         # by using the first from the tree node to the first sensor signals nodes.
         # this paths are described by real_children_paths.

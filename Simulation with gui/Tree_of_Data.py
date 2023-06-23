@@ -17,7 +17,7 @@ class TreeOfData:
     """
 
     # DONE
-    def __init__(self, sensor_locations, sensor_times, time_of_cycle=C.TIME_OF_CYCLE, empty_tree=False):
+    def __init__(self, sensor_locations, sensors_times, time_of_cycle=C.TIME_OF_CYCLE, empty_tree=False):
         """
         param: root_Node - the pointer for the current branch
             param: sensor_locations - location of all sensors in the algorithm
@@ -34,14 +34,14 @@ class TreeOfData:
             field: current_snake_times - a field used for building the tree
         """
         self.sensor_locations = sensor_locations
-        self.sensor_times = sensor_times
+        self.sensors_times = sensors_times
         self.sensor_num_times = []
         self.lagrange_multipliers = []
         self.time_of_cycle = time_of_cycle
-        for i in range(len(sensor_times)):
-            self.sensor_num_times.append(len(sensor_times[i]))
+        for i in range(len(sensors_times)):
+            self.sensor_num_times.append(len(sensors_times[i]))
             self.lagrange_multipliers.append([])
-            for j in range(len(sensor_times[i])):
+            for j in range(len(sensors_times[i])):
                 self.lagrange_multipliers[i].append(0)
         self.tree_size = len(sensor_locations)
         self.current_snake_locations = [(0., 0.) for _ in range(self.tree_size)]
@@ -62,7 +62,7 @@ class TreeOfData:
         """
         depth = len(paths[0])
         number_of_inputted_paths = len(paths)
-        num_signals_in_sensor_depth = len(self.sensor_times[depth])
+        num_signals_in_sensor_depth = len(self.sensors_times[depth])
         matrix_size = number_of_inputted_paths + num_signals_in_sensor_depth
         if depth < self.tree_size:
             matrix = np.zeros((matrix_size, matrix_size))
@@ -74,7 +74,7 @@ class TreeOfData:
 
     def get_2d_matrix_entry(self, depth, row, column, paths, default_score):
         number_of_inputted_paths = len(paths)
-        num_signals_in_sensor_depth = len(self.sensor_times[depth])
+        num_signals_in_sensor_depth = len(self.sensors_times[depth])
         node_0 = self.get_node_from_path(list(np.zeros(depth)))
         if row < number_of_inputted_paths:
             node = self.get_node_from_path(paths[row])
@@ -104,7 +104,7 @@ class TreeOfData:
 
     def get_number_of_uses_from_paths_list(self, paths):
         depth = len(paths[0])
-        number_of_uses = np.zeros(len(self.sensor_times[depth]), dtype=int)
+        number_of_uses = np.zeros(len(self.sensors_times[depth]), dtype=int)
         for path in paths:
             node = self.get_node_from_path(path)
             if node.favorite_child is not None and node.favorite_child != 0:
@@ -170,8 +170,8 @@ class TreeOfData:
             self.special_builder(root_Node.children[0], emitter_location, current_sensor + 1, size_of_snake)
             number_of_children = 1
             if size_of_snake == 0:
-                for serial_number in range(len(self.sensor_times[current_sensor])):
-                    time_of_arrival = self.sensor_times[current_sensor][serial_number]
+                for serial_number in range(len(self.sensors_times[current_sensor])):
+                    time_of_arrival = self.sensors_times[current_sensor][serial_number]
                     self.current_snake_times[size_of_snake] = time_of_arrival
                     self.current_snake_locations[size_of_snake] = self.sensor_locations[current_sensor]
 
@@ -181,7 +181,7 @@ class TreeOfData:
             else:
                 self.current_snake_locations[size_of_snake] = self.sensor_locations[current_sensor]
                 # f = [case1, case2...][size_of_snake]
-                for serial_number in range(len(self.sensor_times[current_sensor])):
+                for serial_number in range(len(self.sensors_times[current_sensor])):
 
                     ambiguity_solved = self.check_ambiguity_and_set_toa(current_sensor, size_of_snake, serial_number)
                     # new_time_of_arrival = self.sensor_times[current_sensor][serial_number]
@@ -224,14 +224,14 @@ class TreeOfData:
                              size_of_snake + 1)
 
     def check_ambiguity_and_set_toa(self, current_sensor, size_of_snake, serial_number):
-        self.current_snake_times[size_of_snake] = self.sensor_times[current_sensor][serial_number]
+        self.current_snake_times[size_of_snake] = self.sensors_times[current_sensor][serial_number]
         sign = np.sign(self.current_snake_times[size_of_snake] - self.current_snake_times[0])
         if sign == 0.0:
             sign = 1
         warning_flag = False
         for ambiguity in [0, 1]:
             factor = ambiguity * sign
-            time_of_arrival = self.sensor_times[current_sensor][serial_number] - factor * self.time_of_cycle
+            time_of_arrival = self.sensors_times[current_sensor][serial_number] - factor * self.time_of_cycle
             cdt_new_to_first = C.C * (time_of_arrival - self.current_snake_times[0])
             distance = scc.distance(
                 (self.current_snake_locations[0], self.sensor_locations[current_sensor]))
@@ -279,14 +279,14 @@ class TreeOfData:
             if path[iteration][sensor_num] > 0:
                 chosen_time = path[iteration][sensor_num]
                 sliced_times_array = np.concatenate(
-                    (self.sensor_times[sensor_num][0:chosen_time - 1],
-                     self.sensor_times[sensor_num][chosen_time:len(self.sensor_times[sensor_num])]))
+                    (self.sensors_times[sensor_num][0:chosen_time - 1],
+                     self.sensors_times[sensor_num][chosen_time:len(self.sensors_times[sensor_num])]))
                 if iteration == 0:
                     dummy_sensor_times.append(sliced_times_array)
                 else:
-                    self.sensor_times[sensor_num] = sliced_times_array
+                    self.sensors_times[sensor_num] = sliced_times_array
             elif iteration == 0:
-                dummy_sensor_times.append(self.sensor_times[sensor_num][0:len(self.sensor_times[sensor_num])])
+                dummy_sensor_times.append(self.sensors_times[sensor_num][0:len(self.sensors_times[sensor_num])])
             if iteration > 0:
                 path_across = [0 for _ in range(iteration + 1)]
                 for delta in range(iteration + 1):
@@ -343,7 +343,7 @@ class TreeOfData:
         llocations = []
         for i in range(len(path)):
             if path[i] > 0:
-                ttime.append(self.sensor_times[i][path[i] - 1])
+                ttime.append(self.sensors_times[i][path[i] - 1])
                 llocations.append(self.sensor_locations[i])
         locations_array = np.array(llocations).T
         time_array = np.array(ttime)
@@ -419,7 +419,7 @@ class TreeOfData:
                 print("PATH DOES NOT EXIST")
 
 def build_tree_from_cost_mat(cost_mat:np.ndarray):
-    tree = TreeOfData
+    tree = TreeOfData()
     tree.add_child()
 
 
