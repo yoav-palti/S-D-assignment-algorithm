@@ -3,7 +3,6 @@ from tqdm import tqdm
 import Constants as C
 import matplotlib.pyplot as plt
 from numba import jit
-from tqdm import tqdm
 from MyNode import MyNode
 import ScoreCalculation as scc
 import scipy.optimize as sci
@@ -419,6 +418,32 @@ class TreeOfData:
             except:
                 print("PATH DOES NOT EXIST")
 
+def build_tree_from_cost_mat(cost_mat:np.ndarray):
+    tree = TreeOfData
+    tree.add_child()
+
+
+if __name__ == '__main__':
+    cost_mat = np.zeros((3, 3, 3))
+    cost_mat[0, 1, 1] = -10.2
+    cost_mat[0, 2, 1] = -4.7
+    cost_mat[0, 2, 2] = -5.5
+    cost_mat[1, 0, 1] = -6.8
+    cost_mat[1, 0, 2] = -5.2
+    cost_mat[1, 1, 0] = -6.8
+    cost_mat[1, 2, 0] = -10.9
+    cost_mat[1, 1, 1] = -18
+    cost_mat[1, 1, 2] = -14.8
+    cost_mat[1, 2, 1] = -17
+    cost_mat[1, 2, 2] = -9.9
+    cost_mat[2, 0, 1] = -13.2
+    cost_mat[2, 0, 2] = -10.6
+    cost_mat[2, 1, 0] = -4.5
+    cost_mat[2, 2, 0] = -11.1
+    cost_mat[2, 1, 2] = -14.1
+    cost_mat[2, 2, 1] = -9
+    cost_mat[2, 2, 2] = -16.7
+    build_tree_from_cost_mat(cost_mat)
 
 if __name__ == '__main__':
     if True:
